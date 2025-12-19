@@ -9,7 +9,7 @@ By: David Jung & Christopher Lee
 
 ## Game Demo:
 
-> https://youtu.be/LGBj9afiXnI
+YouTube Link: https://youtu.be/LGBj9afiXnI
 
 ---
 
