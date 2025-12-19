@@ -3,6 +3,7 @@
 A hardware implementation of a Crossy Road style game built in Verilog for the DE1-SoC FPGA board.  
 The design runs entirely on an FPGA ecosystem: keyboard input, game logic, video output system, and VGA output.
 
+By: David Jung & Christopher Lee
 ---
 
 ## Game Demo:
