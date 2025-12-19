@@ -16,7 +16,7 @@ The design runs entirely on an FPGA ecosystem: keyboard input, game logic, video
 This repository is organized around these logical blocks:
 
 - `docs/` – Diagrams, notes, and design documentation.
-- `mif/` – Game art pixel assets (as .png)
+- `assets/` – Game art pixel assets (as .png)
 
 > **Academic Integrity & Licensing**  
 > To comply with academic integrity and plagiarismm policies at the University of Toronto, the Verilog source code for this course project will **not** be published in this repository.
