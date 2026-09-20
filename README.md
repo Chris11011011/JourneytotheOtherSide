@@ -6,15 +6,15 @@ The design runs entirely on an FPGA ecosystem: keyboard input, game logic, video
 
 By: David Jung & Christopher Lee
 
+<p align="center">
+  <img src="assets/gameStartScreenNew.png" alt="Journey to the Other Side start screen" width="760">
+</p>
+
 ---
 
 ## Game Demo
 
 **Video:** [YouTube](https://youtu.be/LGBj9afiXnI)
-
-| Start screen | Game over screen |
-| --- | --- |
-| ![Start screen](assets/gameStartScreenNew.png) | ![Game over screen](assets/gameEndScreenNew.png) |
 
 ---
 
@@ -57,7 +57,7 @@ Conceptually, the design is split into four main subsystems:
 
 All blocks are fully synchronous to the 50 MHz system clock and coordinated by a small set of global control signals (`reset`, `tick`, `scroll`, `alive`, `game_start`).
 
-![High-level system architecture](docs/Final%20Flow%20Chart.png)
+![Overall project architecture](docs/readme/overall-architecture.jpg)
 
 ---
 
@@ -69,8 +69,6 @@ All blocks are fully synchronous to the 50 MHz system clock and coordinated by a
 - Decodes scan codes for the four movement keys.
 - Handles key press/release using the `F0` break code.
 - Outputs four clean, single cycle booleans: `up`, `down`, `left`, `right`.
-
-![PS/2 input and direction path](docs/readme/ps2-input-diagram.jpg)
 
 **Direction encoding**
 
@@ -121,6 +119,10 @@ A parallel customizable sprite drawer used for:
 - 20x20 chicken sprites (one per facing direction).
 - Full-screen start and game-over overlays.
 
+| Player sprites | Vehicle sprites | Terrain / scenery |
+| --- | --- | --- |
+| <img src="assets/chickUp_20_9.png" width="70" alt="Chicken up"> <img src="assets/chickRight_20_9.png" width="70" alt="Chicken right"> <img src="assets/chickDown_20_9.png" width="70" alt="Chicken down"> <img src="assets/chickLeft_20_9.png" width="70" alt="Chicken left"> | <img src="assets/redCar_320_9.png" width="130" alt="Red car"> <img src="assets/warthog_320_9.png" width="130" alt="Warthog vehicle"> <img src="assets/cyber_320_9.png" width="130" alt="Cyber vehicle"> | <img src="assets/grassStrip2_320_9.png" width="210" alt="Grass strip"><br><img src="assets/dirtRoad2_320_9.png" width="210" alt="Dirt road strip"><br><img src="assets/crossyV2_320_9.png" width="210" alt="Road and scenery asset"> |
+
 **Key Responsibilities**
 
 - Read pixel data from a ROM initialized from a `.mif` image.
@@ -167,7 +169,9 @@ Each instance can be configured by parameters:
 
 To manage many sprite drawers without a full frame buffer, the design uses a **central arbiter FSM** that controls when each sprite drawer runs.
 
-![Render-order arbiter](docs/readme/render-arbiter-diagram.jpg)
+<p align="center">
+  <img src="docs/readme/gameplay-rendering.jpg" alt="Gameplay rendering running on the FPGA and VGA display" width="800">
+</p>
 
 1. `IDLE`  
    - Wait for the global `tick` from the game logic.
