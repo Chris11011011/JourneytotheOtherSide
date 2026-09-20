@@ -57,7 +57,7 @@ Conceptually, the design is split into four main subsystems:
 
 All blocks are fully synchronous to the 50 MHz system clock and coordinated by a small set of global control signals (`reset`, `tick`, `scroll`, `alive`, `game_start`).
 
-![Overall project architecture](docs/readme/overall-architecture.jpg)
+![Overall project architecture](docs/Final%20Flow%20Chart.png)
 
 ---
 
