@@ -1,0 +1,35 @@
+name: Import README images
+
+on:
+  push:
+    branches:
+      - readme-visual-refresh
+    paths:
+      - .github/workflows/import-readme-images.yml
+
+permissions:
+  contents: write
+
+jobs:
+  import-images:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: readme-visual-refresh
+      - name: Download README images
+        shell: bash
+        run: |
+          mkdir -p docs/readme
+          curl --fail --location --retry 3 'https://sdmntprcentralus.oaiusercontent.com/files/00000000-48d8-81f5-8b08-0a2c35b8a1fa/raw?se=2026-09-20T03%3A34%3A13Z&sp=r&sv=2026-02-06&sr=b&scid=c452aa67-07dd-5227-aab9-812ada1ff9a9&skoid=78501c7f-f65d-4e8d-9110-bed29e1beb41&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-09-19T13%3A15%3A39Z&ske=2026-09-20T13%3A15%3A39Z&sks=b&skv=2026-02-06&sig=%2BaYcCu2SpAZ5gLLksUjyHkcaB8Gtq7q4jncezrNTfBE%3D' -o docs/readme/overall-architecture.jpg
+          curl --fail --location --retry 3 'https://sdmntprcentralus.oaiusercontent.com/files/00000000-7434-81f5-872c-f2292c79b7a8/raw?se=2026-09-20T03%3A34%3A14Z&sp=r&sv=2026-02-06&sr=b&scid=494fb89b-69ad-5534-9501-f26b4abe777e&skoid=78501c7f-f65d-4e8d-9110-bed29e1beb41&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-09-19T15%3A48%3A12Z&ske=2026-09-20T15%3A48%3A12Z&sks=b&skv=2026-02-06&sig=M6Bu7vyLpHsEiRKFKWIG7i1ukmHmX3ICOFYY4JCWZAU%3D' -o docs/readme/gameplay-rendering.jpg
+      - name: Commit README images
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/readme/overall-architecture.jpg docs/readme/gameplay-rendering.jpg
+          if ! git diff --cached --quiet; then
+            git commit -m "Add updated README visuals"
+            git push origin HEAD:readme-visual-refresh
+          fi
