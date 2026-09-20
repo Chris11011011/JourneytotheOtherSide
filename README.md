@@ -6,10 +6,15 @@ The design runs entirely on an FPGA ecosystem: keyboard input, game logic, video
 
 By: David Jung & Christopher Lee
 
+<p align="center">
+  <img src="assets/gameStartScreenNew.png" alt="Journey to the Other Side start screen" width="760">
+</p>
+
 ---
 
-## Game Demo:
-YouTube Link: https://youtu.be/LGBj9afiXnI
+## Game Demo
+
+**Video:** [YouTube](https://youtu.be/LGBj9afiXnI)
 
 ---
 
@@ -19,9 +24,10 @@ This repository is organized around these logical blocks:
 
 - `docs/` – Diagrams, notes, and design documentation.
 - `assets/` – Game art pixel assets (as .png)
+- `docs/readme/` – Cropped diagrams used in this README.
 
 > **Academic Integrity & Licensing**  
-> To comply with academic integrity and plagiarismm policies at the University of Toronto, the Verilog source code for this course project will **not** be published in this repository.
+> To comply with academic integrity and plagiarism policies at the University of Toronto, the Verilog source code for this course project will **not** be published in this repository.
 
 ---
 
@@ -36,20 +42,22 @@ The player controls a chicken attempting to cross lanes of traffic:
 Every frame, the hardware:
 1. Reads player input.
 2. Updates game state (position, score, collisions).
-3. Sequences a set of sprite engines to draw backgrond strips, cars, the chicken, and UI overlays directly to the VGA adapter.
+3. Sequences a set of sprite engines to draw background strips, cars, the chicken, and UI overlays directly to the VGA adapter.
 
 ---
 
 ## High Level Architecture
 
-Conceptually, the design is split into three main subsystems:
+Conceptually, the design is split into four main subsystems:
 
 1. **Input & Game Logic**
 2. **Sprite Drawer**
 3. **Video Arbiter**
 4. **Pixel Multiplexer**
 
-All bloks are fully synchronous to the 50 MHz system clock and coordinated by a small set of global control signals (`reset`, `tick`, `scroll`, `alive`, `game_start`).
+All blocks are fully synchronous to the 50 MHz system clock and coordinated by a small set of global control signals (`reset`, `tick`, `scroll`, `alive`, `game_start`).
+
+![Overall project architecture](docs/Final%20Flow%20Chart.png)
 
 ---
 
@@ -66,7 +74,7 @@ All bloks are fully synchronous to the 50 MHz system clock and coordinated by a 
 
 - The four directional booleans are encoded into a 2 bit direction value:
   - `00` = up, `01` = right, `10` = down, `11` = left.
-- This code is used both for movment and for selecting which chicken sprite to draw (facing direction).
+- This code is used both for movement and for selecting which chicken sprite to draw (facing direction).
 
 **Timing Generators**
 
@@ -85,7 +93,7 @@ All bloks are fully synchronous to the 50 MHz system clock and coordinated by a 
 - Cars are organized as **12 lanes**, each defined by:
   - A starting X coordinate.
   - A starting Y coordinate (linked to a particular background strip).
-- Each lane has a horzontal motion engine:
+- Each lane has a horizontal motion engine:
   - On each game tick, car X advances by 1 pixel and wraps at the screen edge.
 - A dedicated collision detector per lane checks:
   - overlap between the chicken’s 20x20 sprite and each car’s 40x20 sprite.
@@ -96,9 +104,9 @@ All bloks are fully synchronous to the 50 MHz system clock and coordinated by a 
   - Car Y positions.
   - Background strip Y positions.
 - On each scroll tick:
-  - Y is incrmented by 20 pixels.
+  - Y is incremented by 20 pixels.
   - If Y reaches the bottom (Y = 220), it wraps back to 0.
-- When the chiken nears the top of the screen, background strips and cars are shifted to simulate continuous upward progress.
+- When the chicken nears the top of the screen, background strips and cars are shifted to simulate continuous upward progress.
 
 ---
 
@@ -110,6 +118,10 @@ A parallel customizable sprite drawer used for:
 - 40x20 car sprites.
 - 20x20 chicken sprites (one per facing direction).
 - Full-screen start and game-over overlays.
+
+| Player sprites | Vehicle sprites | Terrain / scenery |
+| --- | --- | --- |
+| <img src="assets/chickUp_20_9.png" width="70" alt="Chicken up"> <img src="assets/chickRight_20_9.png" width="70" alt="Chicken right"> <img src="assets/chickDown_20_9.png" width="70" alt="Chicken down"> <img src="assets/chickLeft_20_9.png" width="70" alt="Chicken left"> | <img src="assets/redCar_320_9.png" width="130" alt="Red car"> <img src="assets/warthog_320_9.png" width="130" alt="Warthog vehicle"> <img src="assets/cyber_320_9.png" width="130" alt="Cyber vehicle"> | <img src="assets/grassStrip2_320_9.png" width="210" alt="Grass strip"><br><img src="assets/dirtRoad2_320_9.png" width="210" alt="Dirt road strip"><br><img src="assets/crossyV2_320_9.png" width="210" alt="Road and scenery asset"> |
 
 **Key Responsibilities**
 
@@ -124,7 +136,7 @@ Each instance can be configured by parameters:
 
 - `SPR_W`, `SPR_H` – sprite width & height.
 - `COLOR_DEPTH` – bits per pixel.
-- `SPRITE_IMAGE` – path to to the MIF file.
+- `SPRITE_IMAGE` – path to the MIF file.
 - `SKIP_ZERO` – optional "black = transparent" behavior.
 
 **Internal FSM**
@@ -148,7 +160,7 @@ Each instance can be configured by parameters:
      - Bounds: only draw if within 320x240.
      - Transparency: optionally skip pure black.
    - Assert `write_enable` for one cycle if valid.
-   - Advance X/Y counters and ROM addresss.
+   - Advance X/Y counters and ROM address.
    - When the last pixel is processed, raise `done` and return to **IDLE**.
 
 ---
@@ -157,8 +169,12 @@ Each instance can be configured by parameters:
 
 To manage many sprite drawers without a full frame buffer, the design uses a **central arbiter FSM** that controls when each sprite drawer runs.
 
+<p align="center">
+  <img src="docs/readme/gameplay-rendering.jpg" alt="Gameplay rendering running on the FPGA and VGA display" width="800">
+</p>
+
 1. `IDLE`  
-   - Wait for the globel `tick` from the game logic.
+   - Wait for the global `tick` from the game logic.
 
 2. **Background phase**
    - Sequentially start background strip drawers:
@@ -174,7 +190,7 @@ To manage many sprite drawers without a full frame buffer, the design uses a **c
 
 4. **Chicken phase**
    - Based on the frozen direction code, choose one of the four chicken sprite drawers (up/right/down/left).
-   - Start that drawer; wait for it's done`.
+   - Start that drawer; wait for its `done` signal.
 
 5. **Overlay phase**
    - If `alive == 0`: draw the **gameover** screen.
@@ -220,9 +236,9 @@ and generates the analog VGA signals for the display.
 
 - **Reset**: hardware reset button (active-low).
 - **Movement**: movement keys via PS/2 keyboard.
-- **Score**: incremented on each upwardd move.
+- **Score**: incremented on each upward move.
 - **Game start**: first valid move transitions from the start screen to gameplay.
-- **Game over**: triggered on colision or falling off screen; gameover screen is drawn until reset.
+- **Game over**: triggered on collision or falling off screen; gameover screen is drawn until reset.
 
 ---
 
@@ -238,16 +254,16 @@ Several enhancements are possible without fundamentally changing the architectur
 
 2. **Audio Effects**
    - Add simple audio output driven by game events:
-     - Hops, colisions, and gameover tones.
+     - Hops, collisions, and gameover tones.
    - Could be implemented using an audio codec.
 
 3. **Second Player**
    - Add another character with separate controls and a sprite set.
-   - Duplicate colision logic for the second player.
+   - Duplicate collision logic for the second player.
    - Extend the arbiter and MUX to render another sprite layer.
 
 4. **Static Obstacles & Environment Variety**
    - Introduce additional background or foreground sprites (e.g., logs, barriers).
-   - Extend colision rules to differentiate between "hazard", "blocking", and “safe” tiles.
+   - Extend collision rules to differentiate between "hazard", "blocking", and “safe” tiles.
 
 ---
